@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FactureFacile</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Roboto, sans-serif;
+    background-color: #FAFAF7;
+    color: #232320;
+    min-height: 100vh;
+  }
+  .ecran {
+    display: none;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .ecran.actif { display: flex; }
+
+  .logo {
+    font-size: 20px;
+    font-weight: 500;
+    color: #1C3D5A;
+    margin-bottom: 24px;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 500;
+    margin: 0 0 4px 0;
+  }
+  p.subtitle {
+    color: #5A5A55;
+    margin-top: 0;
+    margin-bottom: 20px;
+  }
+  input, select {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 14px;
+    border: 1px solid #E4E1D8;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: Roboto, sans-serif;
+    background-color: white;
+  }
+  button {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: Roboto, sans-serif;
+    margin-top: 8px;
+  }
+  .btn-principal {
+    background-color: #1C3D5A;
+    color: white;
+  }
+  .btn-secondaire {
+    background-color: white;
+    color: #1C3D5A;
+    border: 1px solid #E4E1D8;
+  }
+  .btn-petit {
+    width: auto;
+    padding: 8px 14px;
+    font-size: 13px;
+    margin: 0 0 0 8px;
+  }
+  .btn-danger {
+    background-color: white;
+    color: #B3432B;
+    border: 1px solid #E4E1D8;
+  }
+  #message {
+    margin-top: 4px;
+    margin-bottom: 14px;
+    padding: 12px;
+    background-color: #FFF6EA;
+    border: 1px solid #C97B2E;
+    border-radius: 8px;
+    color: #C97B2E;
+    display: none;
+    font-size: 14px;
+  }
+  #factureMessage {
+    margin-bottom: 14px;
+    padding: 12px;
+    background-color: #FFF6EA;
+    border: 1px solid #C97B2E;
+    border-radius: 8px;
+    color: #C97B2E;
+    display: none;
+    font-size: 14px;
+  }
+
+  .carte {
+    border: 1px solid #E4E1D8;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background-color: white;
+  }
+  .stat-nombre {
+    font-size: 28px;
+    font-weight: 500;
+    color: #C97B2E;
+  }
+  .stat-label {
+    color: #5A5A55;
+    font-size: 14px;
+  }
+  .liste-vide {
+    color: #5A5A55;
+    text-align: center;
+    padding: 24px 0;
+  }
+  .zone-bas {
+    margin-top: auto;
+  }
+
+  .ligne-article {
+    border: 1px solid #E4E1D8;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: white;
+  }
+  .ligne-article-titre {
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+  .ligne-article-detail {
+    color: #5A5A55;
+    font-size: 14px;
+  }
+  .ligne-article-actions {
+    margin-top: 8px;
+    display: flex;
+  }
+  .total-bloc {
+    background-color: white;
+    border: 1px solid #E4E1D8;
+    border-radius: 8px;
+    padding: 16px;
+    margin-top: 4px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .total-label {
+    color: #5A5A55;
+  }
+  .total-montant {
+    font-size: 22px;
+    font-weight: 500;
+    color: #C97B2E;
+  }
+
+  table.apercu-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+  }
+  table.apercu-table th, table.apercu-table td {
+    text-align: left;
+    padding: 8px 4px;
+    border-bottom: 1px solid #E4E1D8;
+    font-size: 14px;
+  }
+  table.apercu-table th {
+    color: #5A5A55;
+    font-weight: 500;
+  }
+
+  .ligne-facture {
+    border: 1px solid #E4E1D8;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 10px;
+    background-color: white;
+  }
+  .ligne-facture-haut {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+  }
+  .ligne-facture-bas {
+    color: #5A5A55;
+    font-size: 14px;
+    margin-top: 2px;
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+
+  <!-- ECRAN 1 : Accueil / Profil -->
+  <div id="ecranAccueil" class="ecran actif">
+    <div class="logo">FactureFacile</div>
+    <div id="formulaire">
+      <h1>Bienvenue sur FactureFacile</h1>
+      <p class="subtitle">Creez vos factures en 2 minutes, directement depuis votre telephone.</p>
+      <input type="text" id="nomEntreprise" placeholder="Nom de votre entreprise ou votre nom">
+      <input type="tel" id="telephone" placeholder="Numero de telephone">
+      <button class="btn-principal" onclick="enregistrerProfil()">Commencer</button>
+    </div>
+    <div id="message"></div>
+  </div>
+
+  <!-- ECRAN 2 : Tableau de bord -->
+  <div id="ecranDashboard" class="ecran">
+    <div class="logo">FactureFacile</div>
+    <h1 id="salutation">Bonjour</h1>
+    <p class="subtitle"></p>
+
+    <div class="carte">
+      <div class="stat-nombre" id="nombreFactures">0</div>
+      <div class="stat-label">facture(s) creee(s)</div>
+    </div>
+
+    <div class="carte">
+      <strong>Dernieres factures</strong>
+      <div id="listeFactures" class="liste-vide">
+        Vous n'avez pas encore cree de facture. Creez la premiere !
+      </div>
+    </div>
+
+    <div class="zone-bas">
+      <button class="btn-principal" onclick="ouvrirNouvelleFacture()">+ Nouvelle facture</button>
+      <button class="btn-secondaire" onclick="ouvrirHistorique()">Historique</button>
+      <button class="btn-secondaire" onclick="ouvrirParametres()">Parametres</button>
+    </div>
+  </div>
+
+  <!-- ECRAN 3 : Nouvelle facture -->
+  <div id="ecranFacture" class="ecran">
+    <div class="logo">FactureFacile</div>
+    <h1>Nouvelle facture</h1>
+
+    <div id="factureMessage"></div>
+
+    <label class="stat-label">Client</label>
+    <select id="selectClient" onchange="changerClient()">
+      <option value="">-- Choisir un client --</option>
+    </select>
+    <button class="btn-secondaire" onclick="ouvrirNouveauClientDepuisFacture()">+ Nouveau client</button>
+
+    <div style="margin-top:20px; margin-bottom:8px;"><strong>Articles</strong></div>
+    <div id="listeArticles"></div>
+    <button class="btn-secondaire" onclick="ouvrirEcranAjoutArticle()">+ Ajouter un article</button>
+
+    <div class="total-bloc" style="margin-top:20px;">
+      <span class="total-label">Total a payer</span>
+      <span class="total-montant" id="totalFacture">0 FCFA</span>
+    </div>
+
+    <div class="zone-bas">
+      <button class="btn-principal" onclick="voirApercu()">Voir l'apercu</button>
+      <button class="btn-secondaire" onclick="ouvrirEcran('ecranDashboard')">Retour</button>
+    </div>
+  </div>
+
+  <!-- ECRAN 3b : Nouveau client / Modifier client -->
+  <div id="ecranNouveauClient" class="ecran">
+    <div class="logo">FactureFacile</div>
+    <h1 id="titreEcranClient">Nouveau client</h1>
+    <p class="subtitle"></p>
+    <input type="text" id="nouveauClientNom" placeholder="Nom du client">
+    <input type="tel" id="nouveauClientTel" placeholder="Numero de telephone (optionnel)">
+    <button class="btn-principal" onclick="enregistrerClient()">Enregistrer le client</button>
+    <button class="btn-secondaire" id="btnAnnulerClient" onclick="ouvrirEcran('ecranFacture')">Annuler</button>
+  </div>
+
+  <!-- ECRAN 3c : Ajouter un article -->
+  <div id="ecranAjouterArticle" class="ecran">
+    <div class="logo">FactureFacile</div>
+    <h1>Nouvel article</h1>
+    <p class="subtitle"></p>
+
+    <label class="stat-label">Produit deja enregistre (optionnel)</label>
+    <select id="selectProduit" onchange="preremplirProduit()">
+      <option value="">-- Saisie manuelle --</option>
+    </select>
+
+    <input type="text" id="articleNom" placeholder="Nom du produit/service">
+    <input type="number" id="articleQuantite" placeholder="Quantite" min="1" value="1">
+    <input type="number" id="articlePrix" placeholder="Prix unitaire (FCFA)" min="0">
+
+    <button class="btn-principal" onclick="ajouterArticle()">Ajouter a la facture</button>
+    <button class="btn-secondaire" onclick="ouvrirEcran('ecranFacture')">Annuler</button>
+  </div>
+
+  <!-- ECRAN 3d : Apercu de la facture -->
+  <div id="ecranApercu" class="ecran">
+    <div class="logo">FactureFacile</div>
+    <h1>Apercu de la facture</h1>
+
+    <div class="carte" id="factureCapture">
+      <div id="apercuNumero" class="stat-label" style="margin-bottom:2px;"></div>
+      <div id="apercuEntreprise" style="font-weight:500; margin-bottom:2px;"></div>
+      <div id="apercuDate" class="stat-label" style="margin-bottom:14px;"></div>
+      <div id="apercuClient" style="margin-bottom:14px;"></div>
+
+      <table class="apercu-table">
+        <thead>
+          <tr><th>Article</th><th>Qte</th><th>Prix</th><th>Sous-total</th></tr>
+        </thead>
+        <tbody id="apercuTableCorps"></tbody>
+      </table>
+
+      <div class="total-bloc">
+        <span class="total-label">Total a payer</span>
+        <span class="total-montant" id="apercuTotal">0 FCFA</span>
+      </div>
+      <p class="subtitle" style="margin-top:14px; margin-bottom:0;">Merci pour votre confiance !</p>
+    </div>
+
+    <div id="partageMessage" style="display:none; margin-bottom:14px; padding:12px; background-color:#FFF6EA; border:1px solid #C97B2E; border-radius:8px; color:#C97B2E; font-size:14px;"></div>
+
+    <div class="zone-bas">
+      <button class="btn-principal" id="btnPartager" onclick="partagerFacture()">Partager en image</button>
+      <button class="btn-secondaire" id="btnModifierApercu" onclick="ouvrirEcran('ecranFacture')">Modifier la facture</button>
+      <button class="btn-secondaire" onclick="retourDepuisApercu()">Retour</button>
+    </div>
+  </div>
+
+  <!-- ECRAN 4 : Historique -->
+  <div id="ecranHistorique" class="ecran">
+    <div class="logo">FactureFacile</div>
+    <h1>Historique</h1>
+    <p class="subtitle"></p>
+
+    <input type="text" id="rechercheHistorique" placeholder="Rechercher par nom de client" oninput="rafraichirHistorique()">
+
+    <div id="listeHistorique"></div>
+
+    <div class="zone-bas">
+      <button class="btn-secondaire" onclick="ouvrirEcran('ecranDashboard')">Retour</button>
+    </div>
+  </div>
+
+  <!-- ECRAN 5 : Parametres -->
+  <div id="ecranParametres" class="ecran">
+    <div class="logo">FactureFacile</div>
+    <h1>Parametres</h1>
+    <p class="subtitle"></p>
+
+    <div class="carte">
+      <div id="paramNomEntreprise" style="font-weight:500;"></div>
+      <div id="paramTelephone" class="stat-label"></div>
+    </div>
+
+    <button class="btn-secondaire" onclick="ouvrirModifierProfil()">Modifier le profil</button>
+    <button class="btn-secondaire" onclick="ouvrirGererClients()">Gerer les clients</button>
+    <button class="btn-secondaire" onclick="ouvrirGererProduits()">Gerer les produits</button>
+
+    <div class="zone-bas">
+      <button class="btn-secondaire" onclick="ouvrirEcran('ecranDashboard')">Retour</button>
+    </div>
+  </div>
+
+  <!-- ECRAN 5a : Modifier le profil -->
+  <div id="ecranModifierProfil" class="ecran">
+    <div class="logo">FactureFacile</div>
+    <h1>Modifier le profil</h1>
+    <p class="subtitle"></p>
+    <input type="text" id="profilNomModif" placeholder="Nom de votre entreprise ou votre nom">
+    <input type="tel" id="profilTelModif" placeholder="Numero de telephone">
+    <button class="btn-principal" onclick="enregistrerModifProfil()">Enregistrer</button>
+    <button class="btn-secondaire" onclick="ouvrirEcran('ecranParametres')">Annuler</button>
+  </div>
+
+  <!-- ECRAN 5b : Gerer les clients -->
+  <div id="ecranGererClients" class="ecran">
+    <div class="logo">FactureFacile</div>
+    <h1>Gerer les clients</h1>
+    <p class="subtitle"></p>
+    <div id="listeGestionClients"></div>
+    <button class="btn-secondaire" onclick="ouvrirNouveauClientDepuisParametres()">+ Nouveau client</button>
+    <div class="zone-bas">
+      <button class="btn-secondaire" onclick="ouvrirEcran('ecranParametres')">Retour</button>
+    </div>
+  </div>
+
+  <!-- ECRAN 5c : Gerer les produits -->
+  <div id="ecranGererProduits" class="ecran">
+    <div class="logo">FactureFacile</div>
+    <h1>Gerer les produits</h1>
+    <p class="subtitle"></p>
+    <div id="listeGestionProduits"></div>
+    <button class="btn-secondaire" onclick="ouvrirNouveauProduit()">+ Nouveau produit</button>
+    <div class="zone-bas">
+      <button class="btn-secondaire" onclick="ouvrirEcran('ecranParametres')">Retour</button>
+    </div>
+  </div>
+
+  <!-- ECRAN 5d : Modifier / Ajouter un produit (catalogue) -->
+  <div id="ecranModifierProduit" class="ecran">
+    <div class="logo">FactureFacile</div>
+    <h1 id="titreModifierProduit">Nouveau produit</h1>
+    <p class="subtitle"></p>
+    <input type="text" id="produitNomModif" placeholder="Nom du produit/service">
+    <input type="number" id="produitPrixModif" placeholder="Prix unitaire (FCFA)" min="0">
+    <button class="btn-principal" onclick="enregistrerModifProduit()">Enregistrer</button>
+    <button class="btn-secondaire" id="btnSupprimerProduitModif" onclick="supprimerProduitDepuisModif()">Supprimer</button>
+    <button class="btn-secondaire" onclick="ouvrirGererProduits()">Annuler</button>
+  </div>
+
+<script>
+  // ---------- Facture en cours de creation (en memoire) ----------
+  var facturationCourante = { idFacture: null, numero: null, client: null, articles: [] };
+  var indexArticleEnEdition = null;
+  var apercuSource = 'ecranDashboard';
+  var clientEnEdition = null;
+  var clientRetourCible = 'ecranFacture';
+  var produitEnEdition = null;
+
+  // ---------- Utilitaires ----------
+  function formatMontant(n) {
+    return Number(n).toLocaleString('fr-FR') + ' FCFA';
+  }
+  function lireListe(cle) {
+    var data = localStorage.getItem(cle);
+    return data ? JSON.parse(data) : [];
+  }
+  function ecrireListe(cle, liste) {
+    localStorage.setItem(cle, JSON.stringify(liste));
+  }
+  function ouvrirEcran(idEcran) {
+    var ecrans = document.querySelectorAll('.ecran');
+    for (var i = 0; i < ecrans.length; i++) {
+      ecrans[i].classList.remove('actif');
+    }
+    document.getElementById(idEcran).classList.add('actif');
+  }
+  function calculerTotalArticles(articles) {
+    var total = 0;
+    for (var i = 0; i < articles.length; i++) {
+      total += articles[i].sousTotal;
+    }
+    return total;
+  }
+
+  // ---------- ECRAN 1 : Profil ----------
+  function enregistrerProfil() {
+    var nom = document.getElementById('nomEntreprise').value.trim();
+    var tel = document.getElementById('telephone').value.trim();
+    if (nom === "" || tel === "") {
+      afficherMessage("Merci de remplir les deux champs.");
+      return;
+    }
+    var profil = { nom: nom, telephone: tel };
+    localStorage.setItem('ff_profile', JSON.stringify(profil));
+    afficherDashboard(profil);
+  }
+  function afficherMessage(texte) {
+    var msg = document.getElementById('message');
+    msg.innerText = texte;
+    msg.style.display = "block";
+  }
+
+  // ---------- ECRAN 2 : Dashboard ----------
+  function afficherDashboard(profil) {
+    document.getElementById('salutation').innerText = "Bonjour, " + profil.nom;
+
+    var factures = lireListe('ff_invoices');
+    document.getElementById('nombreFactures').innerText = String(factures.length);
+
+    var conteneur = document.getElementById('listeFactures');
+    if (factures.length === 0) {
+      conteneur.className = "liste-vide";
+      conteneur.innerHTML = "Vous n'avez pas encore cree de facture. Creez la premiere !";
+    } else {
+      conteneur.className = "";
+      conteneur.innerHTML = "";
+      var dernieres = factures.slice(-3).reverse();
+      for (var i = 0; i < dernieres.length; i++) {
+        (function(facture) {
+          var div = document.createElement('div');
+          div.className = "ligne-facture";
+          div.style.cursor = "pointer";
+          div.onclick = function() { ouvrirApercuHistorique(facture.idFacture, 'ecranDashboard'); };
+          div.innerHTML =
+            '<div class="ligne-facture-haut"><span>' + facture.numero + '</span><span>' + formatMontant(facture.total) + '</span></div>' +
+            '<div class="ligne-facture-bas">' + facture.client.nom + ' - ' + facture.date + '</div>';
+          conteneur.appendChild(div);
+        })(dernieres[i]);
+      }
+    }
+
+    ouvrirEcran('ecranDashboard');
+  }
+
+  function ouvrirNouvelleFacture() {
+    facturationCourante = { idFacture: null, numero: null, client: null, articles: [] };
+    document.getElementById('factureMessage').style.display = "none";
+    remplirSelectClients();
+    rafraichirListeArticles();
+    ouvrirEcran('ecranFacture');
+  }
+
+  // ---------- Clients ----------
+  function remplirSelectClients() {
+    var select = document.getElementById('selectClient');
+    var clients = lireListe('ff_clients');
+    select.innerHTML = '<option value="">-- Choisir un client --</option>';
+    for (var i = 0; i < clients.length; i++) {
+      var option = document.createElement('option');
+      option.value = clients[i].id;
+      option.innerText = clients[i].nom;
+      select.appendChild(option);
+    }
+    if (facturationCourante.client) {
+      select.value = facturationCourante.client.id;
+    }
+  }
+  function changerClient() {
+    var select = document.getElementById('selectClient');
+    var clients = lireListe('ff_clients');
+    var trouve = null;
+    for (var i = 0; i < clients.length; i++) {
+      if (String(clients[i].id) === select.value) { trouve = clients[i]; break; }
+    }
+    facturationCourante.client = trouve;
+  }
+  function enregistrerClient() {
+    var nom = document.getElementById('nouveauClientNom').value.trim();
+    var tel = document.getElementById('nouveauClientTel').value.trim();
+    if (nom === "") {
+      alert("Merci de saisir le nom du client.");
+      return;
+    }
+    var clients = lireListe('ff_clients');
+
+    if (clientEnEdition === null) {
+      var nouveauClient = { id: Date.now(), nom: nom, telephone: tel };
+      clients.push(nouveauClient);
+      ecrireListe('ff_clients', clients);
+      facturationCourante.client = nouveauClient;
+    } else {
+      for (var i = 0; i < clients.length; i++) {
+        if (clients[i].id === clientEnEdition) {
+          clients[i].nom = nom;
+          clients[i].telephone = tel;
+          if (facturationCourante.client && facturationCourante.client.id === clientEnEdition) {
+            facturationCourante.client = clients[i];
+          }
+          break;
+        }
+      }
+      ecrireListe('ff_clients', clients);
+    }
+
+    document.getElementById('nouveauClientNom').value = "";
+    document.getElementById('nouveauClientTel').value = "";
+
+    if (clientRetourCible === 'ecranGererClients') {
+      ouvrirGererClients();
+    } else {
+      remplirSelectClients();
+      ouvrirEcran('ecranFacture');
+    }
+  }
+
+  // ---------- Produits / Articles ----------
+  function ouvrirEcranAjoutArticle() {
+    indexArticleEnEdition = null;
+    document.getElementById('articleNom').value = "";
+    document.getElementById('articleQuantite').value = "1";
+    document.getElementById('articlePrix').value = "";
+    remplirSelectProduits();
+    ouvrirEcran('ecranAjouterArticle');
+  }
+  function remplirSelectProduits() {
+    var select = document.getElementById('selectProduit');
+    var produits = lireListe('ff_products');
+    select.innerHTML = '<option value="">-- Saisie manuelle --</option>';
+    for (var i = 0; i < produits.length; i++) {
+      var option = document.createElement('option');
+      option.value = produits[i].id;
+      option.innerText = produits[i].nom + " (" + formatMontant(produits[i].prix) + ")";
+      select.appendChild(option);
+    }
+  }
+  function preremplirProduit() {
+    var select = document.getElementById('selectProduit');
+    if (select.value === "") return;
+    var produits = lireListe('ff_products');
+    var trouve = null;
+    for (var i = 0; i < produits.length; i++) {
+      if (String(produits[i].id) === select.value) { trouve = produits[i]; break; }
+    }
+    if (trouve) {
+      document.getElementById('articleNom').value = trouve.nom;
+      document.getElementById('articlePrix').value = trouve.prix;
+    }
+  }
+  function ajouterArticle() {
+    var nom = document.getElementById('articleNom').value.trim();
+    var quantite = parseFloat(document.getElementById('articleQuantite').value);
+    var prix = parseFloat(document.getElementById('articlePrix').value);
+
+    if (nom === "" || isNaN(quantite) || quantite <= 0 || isNaN(prix) || prix < 0) {
+      alert("Merci de remplir le nom, une quantite et un prix valides.");
+      return;
+    }
+
+    var sousTotal = quantite * prix;
+    var article = { nom: nom, quantite: quantite, prix: prix, sousTotal: sousTotal };
+
+    if (indexArticleEnEdition !== null) {
+      facturationCourante.articles[indexArticleEnEdition] = article;
+    } else {
+      facturationCourante.articles.push(article);
+    }
+
+    var produits = lireListe('ff_products');
+    var existeDeja = false;
+    for (var i = 0; i < produits.length; i++) {
+      if (produits[i].nom.toLowerCase() === nom.toLowerCase()) { existeDeja = true; break; }
+    }
+    if (!existeDeja) {
+      produits.push({ id: Date.now(), nom: nom, prix: prix });
+      ecrireListe('ff_products', produits);
+    }
+
+    rafraichirListeArticles();
+    ouvrirEcran('ecranFacture');
+  }
+  function modifierArticle(index) {
+    indexArticleEnEdition = index;
+    var article = facturationCourante.articles[index];
+    document.getElementById('articleNom').value = article.nom;
+    document.getElementById('articleQuantite').value = article.quantite;
+    document.getElementById('articlePrix').value = article.prix;
+    remplirSelectProduits();
+    ouvrirEcran('ecranAjouterArticle');
+  }
+  function supprimerArticle(index) {
+    facturationCourante.articles.splice(index, 1);
+    rafraichirListeArticles();
+  }
+
+  function rafraichirListeArticles() {
+    var conteneur = document.getElementById('listeArticles');
+    conteneur.innerHTML = "";
+
+    if (facturationCourante.articles.length === 0) {
+      conteneur.innerHTML = '<div class="liste-vide">Aucun article pour le moment.</div>';
+    } else {
+      for (var i = 0; i < facturationCourante.articles.length; i++) {
+        (function(article, index) {
+          var div = document.createElement('div');
+          div.className = "ligne-article";
+          div.innerHTML =
+            '<div class="ligne-article-titre">' + article.nom + '</div>' +
+            '<div class="ligne-article-detail">' + article.quantite + ' x ' + formatMontant(article.prix) + ' = ' + formatMontant(article.sousTotal) + '</div>' +
+            '<div class="ligne-article-actions">' +
+            '<button class="btn-secondaire btn-petit" onclick="modifierArticle(' + index + ')">Modifier</button>' +
+            '<button class="btn-danger btn-petit" onclick="supprimerArticle(' + index + ')">Supprimer</button>' +
+            '</div>';
+          conteneur.appendChild(div);
+        })(facturationCourante.articles[i], i);
+      }
+    }
+
+    var total = calculerTotalArticles(facturationCourante.articles);
+    document.getElementById('totalFacture').innerText = formatMontant(total);
+  }
+
+  // ---------- Sauvegarde des factures (ff_invoices) ----------
+  function genererNumeroFacture() {
+    var factures = lireListe('ff_invoices');
+    var numero = factures.length + 1;
+    var texte = String(numero);
+    while (texte.length < 4) { texte = "0" + texte; }
+    return "FAC-" + texte;
+  }
+
+  function sauvegarderOuMettreAJourFacture(profil) {
+    var total = calculerTotalArticles(facturationCourante.articles);
+    var factures = lireListe('ff_invoices');
+
+    if (facturationCourante.idFacture === null) {
+      var nouvelleFacture = {
+        idFacture: Date.now(),
+        numero: genererNumeroFacture(),
+        date: new Date().toLocaleDateString('fr-FR'),
+        entreprise: profil.nom,
+        client: facturationCourante.client,
+        articles: facturationCourante.articles,
+        total: total
+      };
+      factures.push(nouvelleFacture);
+      ecrireListe('ff_invoices', factures);
+
+      facturationCourante.idFacture = nouvelleFacture.idFacture;
+      facturationCourante.numero = nouvelleFacture.numero;
+      return nouvelleFacture;
+    } else {
+      var index = -1;
+      for (var i = 0; i < factures.length; i++) {
+        if (factures[i].idFacture === facturationCourante.idFacture) { index = i; break; }
+      }
+      if (index !== -1) {
+        factures[index].client = facturationCourante.client;
+        factures[index].articles = facturationCourante.articles;
+        factures[index].total = total;
+        ecrireListe('ff_invoices', factures);
+        return factures[index];
+      }
+      return null;
+    }
+  }
+
+  // ---------- Partage en image ----------
+  function partagerFacture() {
+    var bouton = document.getElementById('btnPartager');
+    var msg = document.getElementById('partageMessage');
+    msg.style.display = "none";
+    bouton.innerText = "Preparation de l'image...";
+    bouton.disabled = true;
+
+    var cible = document.getElementById('factureCapture');
+
+    html2canvas(cible, {
+      backgroundColor: '#FAFAF7',
+      scale: 2
+    }).then(function(canvas) {
+      canvas.toBlob(function(blob) {
+        bouton.innerText = "Partager en image";
+        bouton.disabled = false;
+
+        if (!blob) {
+          msg.innerText = "La generation de l'image a echoue. Reessayez.";
+          msg.style.display = "block";
+          return;
+        }
+
+        var nomFichier = (document.getElementById('apercuNumero').innerText || "facture") + ".png";
+        var fichier = new File([blob], nomFichier, { type: "image/png" });
+
+        if (navigator.canShare && navigator.canShare({ files: [fichier] })) {
+          navigator.share({
+            files: [fichier],
+            title: nomFichier,
+            text: "Voici votre facture."
+          }).catch(function(erreur) {
+            // L'utilisateur a peut-etre annule le partage : pas une vraie erreur, on ne fait rien.
+          });
+        } else {
+          // Solution de secours si le partage direct n'est pas disponible sur ce navigateur :
+          // on telecharge l'image, que l'utilisateur pourra ensuite envoyer manuellement sur WhatsApp.
+          var lien = document.createElement('a');
+          lien.href = URL.createObjectURL(blob);
+          lien.download = nomFichier;
+          document.body.appendChild(lien);
+          lien.click();
+          document.body.removeChild(lien);
+          msg.innerText = "Image telechargee. Ouvrez-la depuis vos telechargements pour l'envoyer sur WhatsApp.";
+          msg.style.display = "block";
+        }
+      }, 'image/png');
+    }).catch(function(erreur) {
+      bouton.innerText = "Partager en image";
+      bouton.disabled = false;
+      msg.innerText = "Une erreur est survenue pendant la generation de l'image.";
+      msg.style.display = "block";
+    });
+  }
+
+  // ---------- Apercu ----------
+  function afficherApercuDepuisFacture(facture) {
+    document.getElementById('apercuNumero').innerText = facture.numero;
+    document.getElementById('apercuEntreprise').innerText = facture.entreprise;
+    document.getElementById('apercuDate').innerText = facture.date;
+    document.getElementById('apercuClient').innerText = "Client : " + facture.client.nom;
+
+    var corps = document.getElementById('apercuTableCorps');
+    corps.innerHTML = "";
+    for (var i = 0; i < facture.articles.length; i++) {
+      var article = facture.articles[i];
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + article.nom + '</td>' +
+        '<td>' + article.quantite + '</td>' +
+        '<td>' + formatMontant(article.prix) + '</td>' +
+        '<td>' + formatMontant(article.sousTotal) + '</td>';
+      corps.appendChild(tr);
+    }
+
+    document.getElementById('apercuTotal').innerText = formatMontant(facture.total);
+  }
+
+  function voirApercu() {
+    var msg = document.getElementById('factureMessage');
+    if (!facturationCourante.client) {
+      msg.innerText = "Merci de choisir ou creer un client avant de continuer.";
+      msg.style.display = "block";
+      return;
+    }
+    if (facturationCourante.articles.length === 0) {
+      msg.innerText = "Merci d'ajouter au moins un article avant de continuer.";
+      msg.style.display = "block";
+      return;
+    }
+    msg.style.display = "none";
+
+    var profil = JSON.parse(localStorage.getItem('ff_profile'));
+    var facture = sauvegarderOuMettreAJourFacture(profil);
+
+    apercuSource = 'ecranFacture';
+    document.getElementById('btnModifierApercu').style.display = "block";
+    afficherApercuDepuisFacture(facture);
+    ouvrirEcran('ecranApercu');
+  }
+
+  function ouvrirApercuHistorique(idFacture, retourVers) {
+    var factures = lireListe('ff_invoices');
+    var facture = null;
+    for (var i = 0; i < factures.length; i++) {
+      if (factures[i].idFacture === idFacture) { facture = factures[i]; break; }
+    }
+    if (!facture) return;
+
+    apercuSource = retourVers;
+    document.getElementById('btnModifierApercu').style.display = "none";
+    afficherApercuDepuisFacture(facture);
+    ouvrirEcran('ecranApercu');
+  }
+
+  // ---------- Parametres ----------
+  function ouvrirParametres() {
+    var profil = JSON.parse(localStorage.getItem('ff_profile'));
+    document.getElementById('paramNomEntreprise').innerText = profil.nom;
+    document.getElementById('paramTelephone').innerText = profil.telephone;
+    ouvrirEcran('ecranParametres');
+  }
+
+  function ouvrirModifierProfil() {
+    var profil = JSON.parse(localStorage.getItem('ff_profile'));
+    document.getElementById('profilNomModif').value = profil.nom;
+    document.getElementById('profilTelModif').value = profil.telephone;
+    ouvrirEcran('ecranModifierProfil');
+  }
+
+  function enregistrerModifProfil() {
+    var nom = document.getElementById('profilNomModif').value.trim();
+    var tel = document.getElementById('profilTelModif').value.trim();
+    if (nom === "" || tel === "") {
+      alert("Merci de remplir les deux champs.");
+      return;
+    }
+    var profil = { nom: nom, telephone: tel };
+    localStorage.setItem('ff_profile', JSON.stringify(profil));
+    ouvrirParametres();
+  }
+
+  // ---------- Gestion des clients (depuis Parametres) ----------
+  function ouvrirNouveauClientDepuisFacture() {
+    clientEnEdition = null;
+    clientRetourCible = 'ecranFacture';
+    document.getElementById('titreEcranClient').innerText = "Nouveau client";
+    document.getElementById('btnAnnulerClient').setAttribute('onclick', "ouvrirEcran('ecranFacture')");
+    document.getElementById('nouveauClientNom').value = "";
+    document.getElementById('nouveauClientTel').value = "";
+    ouvrirEcran('ecranNouveauClient');
+  }
+
+  function ouvrirNouveauClientDepuisParametres() {
+    clientEnEdition = null;
+    clientRetourCible = 'ecranGererClients';
+    document.getElementById('titreEcranClient').innerText = "Nouveau client";
+    document.getElementById('btnAnnulerClient').setAttribute('onclick', "ouvrirGererClients()");
+    document.getElementById('nouveauClientNom').value = "";
+    document.getElementById('nouveauClientTel').value = "";
+    ouvrirEcran('ecranNouveauClient');
+  }
+
+  function modifierClientExistant(id) {
+    var clients = lireListe('ff_clients');
+    var client = null;
+    for (var i = 0; i < clients.length; i++) {
+      if (clients[i].id === id) { client = clients[i]; break; }
+    }
+    if (!client) return;
+
+    clientEnEdition = id;
+    clientRetourCible = 'ecranGererClients';
+    document.getElementById('titreEcranClient').innerText = "Modifier le client";
+    document.getElementById('btnAnnulerClient').setAttribute('onclick', "ouvrirGererClients()");
+    document.getElementById('nouveauClientNom').value = client.nom;
+    document.getElementById('nouveauClientTel').value = client.telephone;
+    ouvrirEcran('ecranNouveauClient');
+  }
+
+  function supprimerClientExistant(id) {
+    if (!confirm("Supprimer ce client ?")) return;
+    var clients = lireListe('ff_clients');
+    var nouvelleListe = [];
+    for (var i = 0; i < clients.length; i++) {
+      if (clients[i].id !== id) nouvelleListe.push(clients[i]);
+    }
+    ecrireListe('ff_clients', nouvelleListe);
+    rafraichirGestionClients();
+  }
+
+  function ouvrirGererClients() {
+    rafraichirGestionClients();
+    ouvrirEcran('ecranGererClients');
+  }
+
+  function rafraichirGestionClients() {
+    var clients = lireListe('ff_clients');
+    var conteneur = document.getElementById('listeGestionClients');
+    conteneur.innerHTML = "";
+
+    if (clients.length === 0) {
+      conteneur.innerHTML = '<div class="liste-vide">Aucun client enregistre.</div>';
+      return;
+    }
+
+    for (var i = 0; i < clients.length; i++) {
+      (function(client) {
+        var div = document.createElement('div');
+        div.className = "ligne-article";
+        div.innerHTML =
+          '<div class="ligne-article-titre">' + client.nom + '</div>' +
+          '<div class="ligne-article-detail">' + (client.telephone || "Pas de telephone") + '</div>' +
+          '<div class="ligne-article-actions">' +
+          '<button class="btn-secondaire btn-petit" onclick="modifierClientExistant(' + client.id + ')">Modifier</button>' +
+          '<button class="btn-danger btn-petit" onclick="supprimerClientExistant(' + client.id + ')">Supprimer</button>' +
+          '</div>';
+        conteneur.appendChild(div);
+      })(clients[i]);
+    }
+  }
+
+  // ---------- Gestion des produits (depuis Parametres) ----------
+  function ouvrirGererProduits() {
+    rafraichirGestionProduits();
+    ouvrirEcran('ecranGererProduits');
+  }
+
+  function rafraichirGestionProduits() {
+    var produits = lireListe('ff_products');
+    var conteneur = document.getElementById('listeGestionProduits');
+    conteneur.innerHTML = "";
+
+    if (produits.length === 0) {
+      conteneur.innerHTML = '<div class="liste-vide">Aucun produit enregistre.</div>';
+      return;
+    }
+
+    for (var i = 0; i < produits.length; i++) {
+      (function(produit) {
+        var div = document.createElement('div');
+        div.className = "ligne-article";
+        div.innerHTML =
+          '<div class="ligne-article-titre">' + produit.nom + '</div>' +
+          '<div class="ligne-article-detail">' + formatMontant(produit.prix) + '</div>' +
+          '<div class="ligne-article-actions">' +
+          '<button class="btn-secondaire btn-petit" onclick="modifierProduitExistant(' + produit.id + ')">Modifier</button>' +
+          '</div>';
+        conteneur.appendChild(div);
+      })(produits[i]);
+    }
+  }
+
+  function ouvrirNouveauProduit() {
+    produitEnEdition = null;
+    document.getElementById('titreModifierProduit').innerText = "Nouveau produit";
+    document.getElementById('produitNomModif').value = "";
+    document.getElementById('produitPrixModif').value = "";
+    document.getElementById('btnSupprimerProduitModif').style.display = "none";
+    ouvrirEcran('ecranModifierProduit');
+  }
+
+  function modifierProduitExistant(id) {
+    var produits = lireListe('ff_products');
+    var produit = null;
+    for (var i = 0; i < produits.length; i++) {
+      if (produits[i].id === id) { produit = produits[i]; break; }
+    }
+    if (!produit) return;
+
+    produitEnEdition = id;
+    document.getElementById('titreModifierProduit').innerText = "Modifier le produit";
+    document.getElementById('produitNomModif').value = produit.nom;
+    document.getElementById('produitPrixModif').value = produit.prix;
+    document.getElementById('btnSupprimerProduitModif').style.display = "block";
+    ouvrirEcran('ecranModifierProduit');
+  }
+
+  function enregistrerModifProduit() {
+    var nom = document.getElementById('produitNomModif').value.trim();
+    var prix = parseFloat(document.getElementById('produitPrixModif').value);
+
+    if (nom === "" || isNaN(prix) || prix < 0) {
+      alert("Merci de remplir un nom et un prix valides.");
+      return;
+    }
+
+    var produits = lireListe('ff_products');
+
+    if (produitEnEdition === null) {
+      produits.push({ id: Date.now(), nom: nom, prix: prix });
+    } else {
+      for (var i = 0; i < produits.length; i++) {
+        if (produits[i].id === produitEnEdition) {
+          produits[i].nom = nom;
+          produits[i].prix = prix;
+          break;
+        }
+      }
+    }
+
+    ecrireListe('ff_products', produits);
+    ouvrirGererProduits();
+  }
+
+  function supprimerProduitDepuisModif() {
+    if (produitEnEdition === null) return;
+    if (!confirm("Supprimer ce produit ?")) return;
+
+    var produits = lireListe('ff_products');
+    var nouvelleListe = [];
+    for (var i = 0; i < produits.length; i++) {
+      if (produits[i].id !== produitEnEdition) nouvelleListe.push(produits[i]);
+    }
+    ecrireListe('ff_products', nouvelleListe);
+    ouvrirGererProduits();
+  }
+
+  function retourDepuisApercu() {
+    if (apercuSource === 'ecranHistorique') {
+      ouvrirHistorique();
+    } else {
+      var profil = JSON.parse(localStorage.getItem('ff_profile'));
+      afficherDashboard(profil);
+    }
+  }
+
+  // ---------- Historique ----------
+  function ouvrirHistorique() {
+    document.getElementById('rechercheHistorique').value = "";
+    rafraichirHistorique();
+    ouvrirEcran('ecranHistorique');
+  }
+  function rafraichirHistorique() {
+    var terme = document.getElementById('rechercheHistorique').value.trim().toLowerCase();
+    var factures = lireListe('ff_invoices').slice().reverse();
+    var conteneur = document.getElementById('listeHistorique');
+    conteneur.innerHTML = "";
+
+    var filtrees = [];
+    for (var i = 0; i < factures.length; i++) {
+      if (terme === "" || factures[i].client.nom.toLowerCase().indexOf(terme) !== -1) {
+        filtrees.push(factures[i]);
+      }
+    }
+
+    if (filtrees.length === 0) {
+      conteneur.innerHTML = '<div class="liste-vide">Aucune facture pour le moment.</div>';
+      return;
+    }
+
+    for (var j = 0; j < filtrees.length; j++) {
+      (function(facture) {
+        var div = document.createElement('div');
+        div.className = "ligne-facture";
+        div.style.cursor = "pointer";
+        div.onclick = function() { ouvrirApercuHistorique(facture.idFacture, 'ecranHistorique'); };
+        div.innerHTML =
+          '<div class="ligne-facture-haut"><span>' + facture.numero + '</span><span>' + formatMontant(facture.total) + '</span></div>' +
+          '<div class="ligne-facture-bas">' + facture.client.nom + ' - ' + facture.date + '</div>';
+        conteneur.appendChild(div);
+      })(filtrees[j]);
+    }
+  }
+
+  // ---------- Demarrage ----------
+  window.onload = function() {
+    var profilExistant = localStorage.getItem('ff_profile');
+    if (profilExistant) {
+      var profil = JSON.parse(profilExistant);
+      afficherDashboard(profil);
+    }
+  };
+</script>
+
+</body>
+</html>
